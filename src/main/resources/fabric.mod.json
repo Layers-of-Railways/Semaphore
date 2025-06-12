@@ -1,0 +1,43 @@
+{
+	"schemaVersion": 1,
+	"id": "semaphore",
+	"version": "${version}",
+	"name": "Semaphore",
+	"description": "Create signalling debugging tools",
+	"authors": [
+		"SlimeistDev"
+	],
+	"contact": {
+		"sources": "https://github.com/techno-sam/Semaphore",
+		"issues": "https://github.com/techno-sam/Semaphore/issues",
+		"homepage": "https://modrinth.com/mod/semaphore"
+	},
+	"license": "LGPL v3.0",
+	"icon": "assets/semaphore/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"io.github.slimeistdev.semaphore.Semaphore"
+		],
+		"client": [
+			"io.github.slimeistdev.semaphore.SemaphoreClient"
+		]
+	},
+	"accessWidener": "semaphore.accesswidener",
+	"mixins": [
+		"semaphore.mixins.json"
+	],
+	"depends": {
+		"minecraft": "${minecraft_version}",
+		"fabricloader": ">=${fabric_loader_version}",
+		"fabric-api": ">=${fabric_api_version}",
+		"java": ">=17"
+	},
+	"custom": {
+		"modmenu": {
+			"links": {
+				"Modrinth": "https://modrinth.com/mod/semaphore"
+			}
+		}
+	}
+}
