@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.github.slimeistdev.semaphore.mixin.common;
+package io.github.slimeistdev.semaphore.mixin.client;
 
 import com.simibubi.create.content.trains.entity.Train;
 import io.github.slimeistdev.semaphore.content.train_debug.TrainDebugManager;
