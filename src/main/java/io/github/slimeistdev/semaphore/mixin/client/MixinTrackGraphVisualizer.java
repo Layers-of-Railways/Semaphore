@@ -61,8 +61,7 @@ public class MixinTrackGraphVisualizer {
         at = @At(
             value = "INVOKE",
             target = "Lcom/simibubi/create/foundation/outliner/Outliner;showLine(Ljava/lang/Object;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;)Lcom/simibubi/create/foundation/outliner/Outline$OutlineParams;"
-        ),
-        remap = false
+        )
     )
     private static Outline.OutlineParams dbg(
         Outliner instance,
