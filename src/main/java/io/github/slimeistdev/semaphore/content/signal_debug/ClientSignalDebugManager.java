@@ -23,6 +23,7 @@ import com.simibubi.create.content.trains.entity.Train;
 import com.simibubi.create.content.trains.signal.SignalEdgeGroup;
 import com.simibubi.create.foundation.outliner.Outliner;
 import com.simibubi.create.foundation.utility.Color;
+import com.simibubi.create.foundation.utility.Iterate;
 import io.github.slimeistdev.semaphore.content.commands.client.ToggleDebugCommand;
 import io.github.slimeistdev.semaphore.content.train_debug.TrainDebugManager;
 import io.github.slimeistdev.semaphore.mixin_ducks.client.TrainDuck;
@@ -38,7 +39,7 @@ import java.util.*;
 
 @Environment(EnvType.CLIENT)
 public class ClientSignalDebugManager {
-    private static final Set<UUID> occupiedSignalBlocks = new HashSet<>();
+    private static final Map<UUID, List<Color>> occupiedSignalBlocks = new HashMap<>();
     private static final Map<UUID, Color> reservedSignalBlocks = new HashMap<>();
     private static final Map<UUID, List<Color>> awaitingSignalBlocks = new HashMap<>();
 
@@ -67,7 +68,9 @@ public class ClientSignalDebugManager {
             Color color = TrainDebugManager.getTrainColor(train);
             TrainDebugManager debugManager = ((TrainDuck) train).semaphore$getDebugManager();
 
-            occupiedSignalBlocks.addAll(debugManager.getOccupiedSignalBlocks());
+            for (UUID occupiedBlock : debugManager.getOccupiedSignalBlocks()) {
+                occupiedSignalBlocks.computeIfAbsent(occupiedBlock, k -> new ArrayList<>()).add(color);
+            }
 
             for (UUID reservedBlock : debugManager.getReservedSignalBlocks()) {
                 reservedSignalBlocks.put(reservedBlock, color);
@@ -83,48 +86,47 @@ public class ClientSignalDebugManager {
         if (!ToggleDebugCommand.signalBlocksEnabled) return;
 
         ItemStack stack;
-        Color color;
-        List<Color> colors = awaitingSignalBlocks.get(group.id);
-        if (occupiedSignalBlocks.contains(group.id)) {
+        List<Color> occupiedColors = occupiedSignalBlocks.get(group.id);
+        Color reservedColor;
+        List<Color> awaitingColors = awaitingSignalBlocks.get(group.id);
+        if (occupiedColors != null && !occupiedColors.isEmpty()) {
             stack = occupiedStack;
-            color = null;
-        } else if ((color = reservedSignalBlocks.get(group.id)) != null) {
+            reservedColor = null;
+        } else if ((reservedColor = reservedSignalBlocks.get(group.id)) != null) {
             stack = reservedStack;
         } else {
             stack = clearStack;
         }
 
-        Vec3 pos = start.add(end).scale(0.5);
-
-        outliner.showItem(keys.getNextKey(), pos, stack);
-        if (color != null) {
-            outliner.showAABB(highlightKeys.getNextKey(), AABB.ofSize(pos, 0.5, 0.5, 0.5))
-                .colored(color)
-                .lineWidth(1 / 16f);
-        }
-        renderRingStack(pos, colors);
-
         int offset = ToggleDebugCommand.signalBlocksSecondaryOffset;
-        if (offset > 0) {
-            Vec3 topPos = pos.add(0, offset, 0);
-            outliner.showItem(keys.getNextKey(), topPos, stack);
-            if (color != null) {
-                outliner.showAABB(highlightKeys.getNextKey(), AABB.ofSize(topPos, 0.5, 0.5, 0.5))
-                    .colored(color)
+        for (boolean secondary : Iterate.falseAndTrue) {
+            if (secondary && offset <= 0) continue;
+
+            Vec3 pos = start.add(end).scale(0.5);
+
+            if (secondary) {
+                pos = pos.add(0, offset, 0);
+            }
+
+            outliner.showItem(keys.getNextKey(), pos, stack);
+            if (reservedColor != null) {
+                outliner.showAABB(highlightKeys.getNextKey(), AABB.ofSize(pos, 0.5, 0.5, 0.5))
+                    .colored(reservedColor)
                     .lineWidth(1 / 16f);
             }
-            renderRingStack(topPos, colors);
+            renderRingStack(pos, awaitingColors, 0.6);
+            renderRingStack(pos.add(0, 0.25, 0), occupiedColors, 0.3);
         }
     }
 
-    private static void renderRingStack(Vec3 pos, List<Color> colors) {
+    private static void renderRingStack(Vec3 pos, List<Color> colors, double radius) {
         if (colors == null || colors.isEmpty()) return;
 
 //        pos = pos.add(0, 0.25, 0);
 
         Outliner outliner = CreateClient.OUTLINER;
         for (Color color : colors) {
-            outliner.showAABB(highlightKeys.getNextKey(), AABB.ofSize(pos, 0.6, 0.0, 0.6), 3)
+            outliner.showAABB(highlightKeys.getNextKey(), AABB.ofSize(pos, radius, 0.0, radius), 3)
                 .colored(color)
                 .lineWidth(1 / 16f);
 
