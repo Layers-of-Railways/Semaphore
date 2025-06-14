@@ -35,7 +35,7 @@ public class OutlineStyleRenderer {
     /**
      * Render an oriented bounding box, with center-of-rotation at (0, 0, 0)
      */
-    public static void renderOBB(AABB bb, float yRot, float xRot, PoseStack ms, SuperRenderTypeBuffer buffer, float lineWidth, Vector4f color, int lightmap, boolean disableNormals) {
+    public static void renderOBB(AABB bb, float yRot, float xRot, float secondaryYRot, PoseStack ms, SuperRenderTypeBuffer buffer, float lineWidth, Vector4f color, int lightmap, boolean disableNormals) {
         VertexConsumer consumer = buffer.getBuffer(RenderTypes.getOutlineSolid());
 
         Vector3f center = bb.getCenter().toVector3f();
@@ -47,8 +47,9 @@ public class OutlineStyleRenderer {
             ms.pushPose();
 
             TransformStack.cast(ms)
-                .rotateY(yRot + 180)
-                .rotateZ(-xRot);
+                .rotateY(yRot)
+                .rotateZ(xRot)
+                .rotateY(secondaryYRot);
 
             INSTANCE.renderBoxEdges(ms, consumer, minPos, maxPos, lineWidth, color, lightmap, disableNormals);
 

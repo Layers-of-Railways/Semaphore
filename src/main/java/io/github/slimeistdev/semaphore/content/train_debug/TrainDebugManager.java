@@ -24,6 +24,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.railwayteam.railways.compat.journeymap.UsernameUtils;
 import com.simibubi.create.content.contraptions.Contraption;
 import com.simibubi.create.content.trains.entity.Carriage;
+import com.simibubi.create.content.trains.entity.CarriageContraption;
 import com.simibubi.create.content.trains.entity.CarriageContraptionEntity;
 import com.simibubi.create.content.trains.entity.Train;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
@@ -227,8 +228,7 @@ public class TrainDebugManager {
         if (!ToggleDebugCommand.trainEnabled) return;
 
         Carriage carriage = entity.getCarriage();
-        Contraption contraption = entity.getContraption();
-        if (carriage == null || contraption == null) return;
+        if (carriage == null || !(entity.getContraption() instanceof CarriageContraption contraption)) return;
 
         Train train = carriage.train;
         if (train == null) return;
@@ -248,12 +248,13 @@ public class TrainDebugManager {
             ms.pushPose();
 
             TransformStack.cast(ms)
-                    .translate(0, 0.5f, 0);
+                .translate(0, 0.5f, 0);
 
             OutlineStyleRenderer.renderOBB(
                 bb,
                 viewYRot,
                 viewXRot,
+                contraption.getAssemblyDirection().toYRot() + 90,
                 ms,
                 SuperRenderTypeBuffer.getInstance(),
                 1 / 16f,
