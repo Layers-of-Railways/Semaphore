@@ -16,26 +16,28 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.github.slimeistdev.semaphore.registration;
+package io.github.slimeistdev.semaphore.registry;
 
 import com.mojang.brigadier.CommandDispatcher;
-import io.github.slimeistdev.semaphore.content.commands.server.DemoCommand;
-import io.github.slimeistdev.semaphore.content.commands.server.ReloadCommandsCommand;
+import io.github.slimeistdev.semaphore.content.commands.client.ReloadCommandsCommand;
+import io.github.slimeistdev.semaphore.content.commands.client.ToggleDebugCommand;
 import io.github.slimeistdev.semaphore.utils.Utils;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.commands.CommandBuildContext;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
 
-import static net.minecraft.commands.Commands.literal;
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 
-public class SemaphoreCommandsServer {
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context, Commands.CommandSelection selection) {
-        var semaphoreCommand = literal("semaphore")
-            .then(DemoCommand.register());
+@Environment(EnvType.CLIENT)
+public class SemaphoreCommandsClient {
+    public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher, CommandBuildContext context) {
+        var semaphoreCommand = literal("semaphorec")
+            .then(ToggleDebugCommand.register());
 
         if (Utils.isDevEnv()) {
             semaphoreCommand = semaphoreCommand
-                .then(ReloadCommandsCommand.register(dispatcher, context, selection, SemaphoreCommandsServer::register));
+                .then(ReloadCommandsCommand.register(dispatcher, context, SemaphoreCommandsClient::register));
         }
 
         dispatcher.register(semaphoreCommand);

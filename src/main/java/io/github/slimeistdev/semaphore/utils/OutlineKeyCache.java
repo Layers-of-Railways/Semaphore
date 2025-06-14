@@ -16,18 +16,30 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.github.slimeistdev.semaphore;
+package io.github.slimeistdev.semaphore.utils;
 
-import io.github.slimeistdev.semaphore.events.ClientEvents;
-import io.github.slimeistdev.semaphore.network.SemaphorePackets;
-import net.fabricmc.api.ClientModInitializer;
+import java.util.ArrayList;
+import java.util.List;
 
-public class SemaphoreClient implements ClientModInitializer {
-    @Override
-    public void onInitializeClient() {
-        Semaphore.LOGGER.info("Semaphore is loading on the client!");
-        ClientEvents.register();
+public class OutlineKeyCache {
+    private final List<Object> keys = new ArrayList<>();
 
-        SemaphorePackets.PACKETS.registerS2CListener();
+    public Object getKey(int i) {
+        while (keys.size() <= i) {
+            keys.add(new Object());
+        }
+        return keys.get(i);
+    }
+
+    public static class Sequential extends OutlineKeyCache {
+        private int nextKey = 0;
+
+        public void resetCounter() {
+            nextKey = 0;
+        }
+
+        public Object getNextKey() {
+            return super.getKey(nextKey++);
+        }
     }
 }

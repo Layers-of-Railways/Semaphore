@@ -16,18 +16,19 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.github.slimeistdev.semaphore;
+package io.github.slimeistdev.semaphore.mixin.common;
 
-import io.github.slimeistdev.semaphore.events.ClientEvents;
-import io.github.slimeistdev.semaphore.network.SemaphorePackets;
-import net.fabricmc.api.ClientModInitializer;
+import com.simibubi.create.content.trains.entity.Navigation;
+import com.simibubi.create.content.trains.signal.SignalBoundary;
+import com.simibubi.create.foundation.utility.Pair;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.gen.Accessor;
 
-public class SemaphoreClient implements ClientModInitializer {
-    @Override
-    public void onInitializeClient() {
-        Semaphore.LOGGER.info("Semaphore is loading on the client!");
-        ClientEvents.register();
+import java.util.Map;
+import java.util.UUID;
 
-        SemaphorePackets.PACKETS.registerS2CListener();
-    }
+@Mixin(Navigation.class)
+public interface AccessorNavigation {
+    @Accessor(value = "waitingForChainedGroups", remap = false)
+    Map<UUID, Pair<SignalBoundary, Boolean>> semaphore$getWaitingForChainedGroups();
 }

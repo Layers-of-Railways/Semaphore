@@ -18,14 +18,20 @@
 
 package io.github.slimeistdev.semaphore;
 
+import com.simibubi.create.Create;
 import io.github.slimeistdev.semaphore.events.CommonEvents;
-import io.github.slimeistdev.semaphore.registration.ModSetup;
+import io.github.slimeistdev.semaphore.network.SemaphorePackets;
+import io.github.slimeistdev.semaphore.registry.ModSetup;
 import io.github.slimeistdev.semaphore.utils.Utils;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.MixinEnvironment;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 public class Semaphore implements ModInitializer {
 	public static final String MOD_ID = "semaphore";
@@ -34,6 +40,8 @@ public class Semaphore implements ModInitializer {
 	// It is considered best practice to use your mod id as the logger's name.
 	// That way, it's clear which mod wrote info, warnings, and errors.
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+
+	public static final Set<UUID> playersDebuggingSignals = new HashSet<>();
 
 	@Override
 	public void onInitialize() {
@@ -46,7 +54,11 @@ public class Semaphore implements ModInitializer {
 		ModSetup.init();
 		CommonEvents.register();
 
+		SemaphorePackets.PACKETS.registerC2SListener();
+
 		if (Utils.isDevEnv() && !Boolean.getBoolean("DATAGEN")) {
+			// Must load Create pre-audit to prevent reentrancy crashes
+			@SuppressWarnings("unused") var voodoo = Create.asResource("voodoo");
 			MixinEnvironment.getCurrentEnvironment().audit();
 		}
 	}

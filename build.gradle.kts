@@ -107,7 +107,7 @@ dependencies {
     // Create - dependencies are added transitively
     modImplementation("com.simibubi.create:create-fabric-${"minecraft_version"()}:${"create_version"()}")
 
-    modLocalRuntime("com.railwayteam.railways:Steam_Rails-fabric-1.20.1:${"snr_version"()}")
+    modImplementation("com.railwayteam.railways:Steam_Rails-fabric-1.20.1:${"snr_version"()}")
 
     // Development QOL
     modLocalRuntime("maven.modrinth:lazydfu:${"lazydfu_version"()}")

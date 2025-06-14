@@ -16,18 +16,10 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.github.slimeistdev.semaphore;
+package io.github.slimeistdev.semaphore.mixin_ducks.client;
 
-import io.github.slimeistdev.semaphore.events.ClientEvents;
-import io.github.slimeistdev.semaphore.network.SemaphorePackets;
-import net.fabricmc.api.ClientModInitializer;
+import io.github.slimeistdev.semaphore.content.train_debug.TrainDebugManager;
 
-public class SemaphoreClient implements ClientModInitializer {
-    @Override
-    public void onInitializeClient() {
-        Semaphore.LOGGER.info("Semaphore is loading on the client!");
-        ClientEvents.register();
-
-        SemaphorePackets.PACKETS.registerS2CListener();
-    }
+public interface TrainDuck {
+    TrainDebugManager semaphore$getDebugManager();
 }

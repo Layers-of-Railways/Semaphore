@@ -16,9 +16,21 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.github.slimeistdev.semaphore.registration;
+package io.github.slimeistdev.semaphore.mixin.common;
 
-public class ModSetup {
-    public static void init() {
+import com.simibubi.create.content.trains.entity.Train;
+import io.github.slimeistdev.semaphore.content.train_debug.TrainDebugManager;
+import io.github.slimeistdev.semaphore.mixin_ducks.client.TrainDuck;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
+
+@Mixin(Train.class)
+public class MixinTrain implements TrainDuck {
+    @Unique
+    private final TrainDebugManager semaphore$debugManager = new TrainDebugManager((Train) (Object) this);
+
+    @Override
+    public TrainDebugManager semaphore$getDebugManager() {
+        return semaphore$debugManager;
     }
 }

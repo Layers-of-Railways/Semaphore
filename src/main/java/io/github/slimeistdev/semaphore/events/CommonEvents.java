@@ -18,13 +18,51 @@
 
 package io.github.slimeistdev.semaphore.events;
 
-import io.github.slimeistdev.semaphore.registration.SemaphoreCommandsServer;
+import com.simibubi.create.Create;
+import com.simibubi.create.content.trains.entity.Train;
+import io.github.slimeistdev.semaphore.Semaphore;
+import io.github.slimeistdev.semaphore.network.SemaphorePackets;
+import io.github.slimeistdev.semaphore.network.SemaphorePlayerSelection;
+import io.github.slimeistdev.semaphore.network.packets.s2c.CheckVersionPacket;
+import io.github.slimeistdev.semaphore.network.packets.s2c.SignalOccupationUpdatePacket;
+import io.github.slimeistdev.semaphore.registry.SemaphoreCommandsServer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.event.player.*;
-import net.minecraft.world.InteractionResult;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 
 public class CommonEvents {
     public static void register() {
         CommandRegistrationCallback.EVENT.register(SemaphoreCommandsServer::register);
+        ServerPlayConnectionEvents.JOIN.register(CommonEvents::onPlayerJoin);
+        ServerPlayConnectionEvents.DISCONNECT.register(CommonEvents::onPlayerDisconnect);
+        ServerTickEvents.END_SERVER_TICK.register(CommonEvents::onServerTick);
+    }
+
+    private static void onPlayerJoin(ServerGamePacketListenerImpl handler, PacketSender sender, MinecraftServer server) {
+        SemaphorePackets.PACKETS.sendTo(handler.player, new CheckVersionPacket(SemaphorePackets.PACKETS.version));
+    }
+
+    private static void onPlayerDisconnect(ServerGamePacketListenerImpl handler, MinecraftServer server) {
+        Semaphore.playersDebuggingSignals.remove(handler.player.getUUID());
+    }
+
+    private static void onServerTick(MinecraftServer server) {
+        long gameTime = server.overworld().getGameTime();
+
+        if (!Semaphore.playersDebuggingSignals.isEmpty()) {
+            for (Train train : Create.RAILWAYS.trains.values()) {
+                if (!train.shouldCarriageSyncThisTick(gameTime, 5)) continue;
+
+                SemaphorePackets.PACKETS.sendTo(
+                    SemaphorePlayerSelection.tracking(train).filtered(
+                        player -> Semaphore.playersDebuggingSignals.contains(player.getUUID())
+                    ),
+                    new SignalOccupationUpdatePacket(train)
+                );
+            }
+        }
     }
 }

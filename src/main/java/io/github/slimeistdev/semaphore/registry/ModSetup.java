@@ -16,18 +16,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.github.slimeistdev.semaphore;
+package io.github.slimeistdev.semaphore.registry;
 
-import io.github.slimeistdev.semaphore.events.ClientEvents;
-import io.github.slimeistdev.semaphore.network.SemaphorePackets;
-import net.fabricmc.api.ClientModInitializer;
-
-public class SemaphoreClient implements ClientModInitializer {
-    @Override
-    public void onInitializeClient() {
-        Semaphore.LOGGER.info("Semaphore is loading on the client!");
-        ClientEvents.register();
-
-        SemaphorePackets.PACKETS.registerS2CListener();
+public class ModSetup {
+    public static void init() {
     }
 }
