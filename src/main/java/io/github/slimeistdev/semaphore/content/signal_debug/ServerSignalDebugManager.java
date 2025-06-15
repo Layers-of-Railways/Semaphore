@@ -59,8 +59,22 @@ public class ServerSignalDebugManager {
         msg(message.withStyle(ChatFormatting.DARK_RED));
     }
 
+    private static Component copyableString(String str) {
+        return Component.literal(str)
+            .withStyle(Style.EMPTY
+                .withHoverEvent(new HoverEvent(
+                    HoverEvent.Action.SHOW_TEXT,
+                    Component.translatable("semaphore.tooltip.copyable_string")
+                ))
+                .withClickEvent(new ClickEvent(
+                    ClickEvent.Action.COPY_TO_CLIPBOARD,
+                    str
+                ))
+            );
+    }
+
     private void run() {
-        msg(Component.translatable("semaphore.signal_debug.title", trainId).withStyle(ChatFormatting.GOLD));
+        msg(Component.translatable("semaphore.signal_debug.title", copyableString(trainId.toString())).withStyle(ChatFormatting.GOLD));
 
         Train currentTrain = Create.RAILWAYS.trains.get(trainId);
         if (currentTrain == null) {

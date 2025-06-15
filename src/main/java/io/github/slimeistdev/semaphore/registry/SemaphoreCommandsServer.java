@@ -21,6 +21,7 @@ package io.github.slimeistdev.semaphore.registry;
 import com.mojang.brigadier.CommandDispatcher;
 import io.github.slimeistdev.semaphore.content.commands.server.ReloadCommandsCommand;
 import io.github.slimeistdev.semaphore.content.commands.server.TrainTeleportCommand;
+import io.github.slimeistdev.semaphore.content.commands.server.WatchdogCommand;
 import io.github.slimeistdev.semaphore.utils.Utils;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -31,7 +32,8 @@ import static net.minecraft.commands.Commands.literal;
 public class SemaphoreCommandsServer {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context, Commands.CommandSelection selection) {
         var semaphoreCommand = literal("semaphore")
-            .then(TrainTeleportCommand.register());
+            .then(TrainTeleportCommand.register())
+            .then(WatchdogCommand.register());
 
         if (Utils.isDevEnv()) {
             semaphoreCommand = semaphoreCommand

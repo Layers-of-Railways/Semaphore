@@ -1,20 +1,29 @@
 {
   "semaphore.command.toggle_debug.train.enabled": "Enabled train debugger",
   "semaphore.command.toggle_debug.train.disabled": "Disabled train debugger",
+
   "semaphore.command.toggle_debug.signal_blocks.enabled": "Enabled signal block debugger",
   "semaphore.command.toggle_debug.signal_blocks.disabled": "Disabled signal block debugger",
   "semaphore.command.toggle_debug.signal_blocks.secondary_offset": "Set secondary offset height to %s blocks",
+
+  "semaphore.train_debug.debug_signalling": "Debug signal state",
+
+  "semaphore.signal_debug.title": "Running signal debug for train %s",
   "semaphore.signal_debug.no_train": "No train found",
   "semaphore.signal_debug.not_waiting": "Not waiting for signal",
-  "semaphore.signal_debug.title": "Running signal debug for train %s",
-  "semaphore.train_debug.debug_signalling": "Debug signal state",
   "semaphore.signal_debug.blocker.forced_red": "%s is blocked by a forced signal",
   "semaphore.signal_debug.blocker.simple": "%s is blocked by %s",
   "semaphore.signal_debug.blocker.deadlocked_parent": "%s is deadlocked by %s",
-  "command.semaphore.train_tp.not_found": "Could not find train with id %s",
-  "command.semaphore.train_tp.lost": "Could not determine coordinates for train %s",
-  "command.semaphore.train_tp.success.single": "Teleported %s to %s",
-  "command.semaphore.train_tp.success.multiple": "Teleported %s entities to %s",
+
+  "semaphore.command.train_not_found": "Could not find train with id %s",
+  "semaphore.command.train_tp.lost": "Could not determine coordinates for train %s",
+  "semaphore.command.train_tp.success.single": "Teleported %s to %s",
+  "semaphore.command.train_tp.success.multiple": "Teleported %s entities to %s",
+
+  "semaphore.command.watchdog.enabled": "Enabled navigation watchdog for train [%s]",
+  "semaphore.command.watchdog.disabled": "Disabled navigation watchdog for train [%s]",
+
   "semaphore.navigation_watchdog.stuck": "\u00a7c[NAVIGATION WATCHDOG]\u00a7r Train [%s] has been stuck at a signal for %s minutes and %s seconds.",
-  "semaphore.tooltip.train_tp": "Click to teleport"
+  "semaphore.tooltip.train_tp": "Click to teleport",
+  "semaphore.tooltip.copyable_string": "Click to copy"
 }

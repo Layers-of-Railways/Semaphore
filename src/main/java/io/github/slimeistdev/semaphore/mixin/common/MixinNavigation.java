@@ -39,8 +39,8 @@ import java.util.UUID;
 public abstract class MixinNavigation {
     @Shadow public int ticksWaitingForSignal;
     @Shadow public Train train;
-
     @Shadow public Pair<UUID, Boolean> waitingForSignal;
+
     @Unique
     private int semaphore$secondaryTicksWaitingForSignal;
 

@@ -78,7 +78,7 @@ public class TrainTeleportCommand {
     private static int teleportToTrain(CommandSourceStack source, Collection<? extends Entity> targets, UUID trainId) throws CommandSyntaxException {
         Train train = Create.RAILWAYS.trains.get(trainId);
         if (train == null || train.carriages.isEmpty()) {
-            source.sendFailure(Component.translatable("command.semaphore.train_tp.not_found", trainId));
+            source.sendFailure(Component.translatable("semaphore.command.train_not_found", trainId));
             return 0;
         }
 
@@ -91,7 +91,7 @@ public class TrainTeleportCommand {
         ResourceKey<Level> dimension = carriage.leadingBogey().getDimension();
         Vec3 pos = carriage.leadingBogey().getAnchorPosition();
         if (pos == null) {
-            source.sendFailure(Component.translatable("command.semaphore.train_tp.lost", trainLabel));
+            source.sendFailure(Component.translatable("semaphore.command.train_tp.lost", trainLabel));
             return 0;
         }
 
@@ -104,7 +104,7 @@ public class TrainTeleportCommand {
         if (targets.size() == 1) {
             source.sendSuccess(
                 () -> Component.translatable(
-                    "command.semaphore.train_tp.success.single",
+                    "semaphore.command.train_tp.success.single",
                     targets.iterator().next().getDisplayName(),
                     trainLabel
                 ),
@@ -113,7 +113,7 @@ public class TrainTeleportCommand {
         } else {
             source.sendSuccess(
                 () -> Component.translatable(
-                    "command.semaphore.train_tp.success.multiple",
+                    "semaphore.command.train_tp.success.multiple",
                     targets.size(),
                     trainLabel
                 ),

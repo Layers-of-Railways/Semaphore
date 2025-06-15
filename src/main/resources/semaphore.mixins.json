@@ -4,7 +4,8 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "common.AccessorNavigation",
-    "common.MixinNavigation"
+    "common.MixinNavigation",
+    "common.MixinTrain"
   ],
   "injectors": {
     "defaultRequire": 1

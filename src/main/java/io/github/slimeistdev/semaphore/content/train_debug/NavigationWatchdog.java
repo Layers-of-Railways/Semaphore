@@ -24,6 +24,7 @@ import com.simibubi.create.content.trains.signal.SignalBoundary;
 import com.simibubi.create.foundation.utility.Pair;
 import io.github.slimeistdev.semaphore.Semaphore;
 import io.github.slimeistdev.semaphore.mixin.common.AccessorNavigation;
+import io.github.slimeistdev.semaphore.mixin_ducks.common.TrainDuck;
 import io.github.slimeistdev.semaphore.utils.AuthUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.ClickEvent;
@@ -43,12 +44,23 @@ public class NavigationWatchdog {
         20 * 60 * 5 // 5 minutes by default
     );
 
+    // how often to perform the check even for trains with the watchdog disabled
+    private static final int DISABLED_IGNORE_INTERVAL = Integer.getInteger(
+        "semaphore.navigation_watchdog.disabled_ignore_interval",
+        0 // never, by default
+    );
+
     public static boolean tick(Train train, Level level, int waitingTicks) {
         if (THRESHOLD_TICKS <= 0) return false; // watchdog disabled
         if (!(level instanceof ServerLevel serverLevel)) return false;
 
         if (waitingTicks < THRESHOLD_TICKS || waitingTicks % THRESHOLD_TICKS != 0) return false;
         if (train.navigation.waitingForSignal == null) return false; // sanity check
+
+        if (((TrainDuck) train).semaphore$isNavigationWatchdogDisabled()) {
+            if (DISABLED_IGNORE_INTERVAL <= 0) return false;
+            if ((waitingTicks / THRESHOLD_TICKS) % DISABLED_IGNORE_INTERVAL != DISABLED_IGNORE_INTERVAL - 1) return false;
+        }
 
         // verify that the signal isn't just forced red signal
         UUID signalId = train.navigation.waitingForSignal.getFirst();
