@@ -24,12 +24,14 @@ import com.simibubi.create.content.trains.signal.SignalBoundary;
 import com.simibubi.create.foundation.utility.Pair;
 import io.github.slimeistdev.semaphore.Semaphore;
 import io.github.slimeistdev.semaphore.mixin.common.AccessorNavigation;
+import io.github.slimeistdev.semaphore.utils.AuthUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 
 import java.util.Map;
@@ -79,7 +81,11 @@ public class NavigationWatchdog {
 
         var message = Component.translatable("semaphore.navigation_watchdog.stuck", trainLabel, minutesWaiting, secondsWaiting);
 
-        serverLevel.getServer().getPlayerList().broadcastSystemMessage(message, false);
+        for (ServerPlayer player : serverLevel.getServer().getPlayerList().getPlayers()) {
+            if (!AuthUtils.isAuthorized(player) && !player.getUUID().equals(train.owner)) continue;
+            player.sendSystemMessage(message);
+        }
+
         Semaphore.LOGGER.warn("Train [{}] has been stuck at a signal for {} minutes and {} seconds. Teleport to it: {}",
             train.name.getString(), minutesWaiting, secondsWaiting, tpCommand);
 
