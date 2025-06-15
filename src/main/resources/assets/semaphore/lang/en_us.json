@@ -14,5 +14,7 @@
   "command.semaphore.train_tp.not_found": "Could not find train with id %s",
   "command.semaphore.train_tp.lost": "Could not determine coordinates for train %s",
   "command.semaphore.train_tp.success.single": "Teleported %s to %s",
-  "command.semaphore.train_tp.success.multiple": "Teleported %s entities to %s"
+  "command.semaphore.train_tp.success.multiple": "Teleported %s entities to %s",
+  "semaphore.navigation_watchdog.stuck": "\u00a7c[NAVIGATION WATCHDOG]\u00a7r Train [%s] has been stuck at a signal for %s minutes and %s seconds.",
+  "semaphore.tooltip.train_tp": "Click to teleport"
 }
