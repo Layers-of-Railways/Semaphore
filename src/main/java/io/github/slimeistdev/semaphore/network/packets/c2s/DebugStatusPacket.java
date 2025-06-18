@@ -38,7 +38,7 @@ public record DebugStatusPacket(boolean debuggingSignals) implements C2SPacket {
 
     @Override
     public void handle(ServerPlayer sender) {
-        if (AuthUtils.isAuthorized(sender)) {
+        if (AuthUtils.isDebugAuthorized(sender)) {
             if (debuggingSignals) {
                 Semaphore.playersDebuggingSignals.add(sender.getUUID());
             } else {

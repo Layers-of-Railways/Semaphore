@@ -104,6 +104,10 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:${"fabric_loader_version"()}")
     modImplementation("net.fabricmc.fabric-api:fabric-api:${"fabric_api_version"()}")
 
+    include(modImplementation("me.lucko:fabric-permissions-api:${"fabric_permissions_api_version"()}") {
+        isTransitive = false
+    })
+
     // Create - dependencies are added transitively
     modImplementation("com.simibubi.create:create-fabric-${"minecraft_version"()}:${"create_version"()}")
 

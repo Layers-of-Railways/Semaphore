@@ -40,7 +40,7 @@ public record RequestSignalDebugPacket(UUID trainId) implements C2SPacket {
 
     @Override
     public void handle(ServerPlayer sender) {
-        if (!AuthUtils.isAuthorized(sender)) {
+        if (!AuthUtils.isDebugAuthorized(sender)) {
             SemaphorePackets.PACKETS.sendTo(sender, new RejectDebugStatusPacket());
             return;
         }

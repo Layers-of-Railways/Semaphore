@@ -56,7 +56,7 @@ public class TrainTeleportCommand {
 
     public static ArgumentBuilder<CommandSourceStack, ?> register() {
         return literal("train_tp")
-            .requires(AuthUtils::isAuthorized)
+            .requires(AuthUtils::isTeleportAuthorized)
             .then(argument("uuid", UuidArgument.uuid())
                 .executes(ctx -> teleportToTrain(
                     ctx.getSource(),

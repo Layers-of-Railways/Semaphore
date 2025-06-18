@@ -94,7 +94,7 @@ public class NavigationWatchdog {
         var message = Component.translatable("semaphore.navigation_watchdog.stuck", trainLabel, minutesWaiting, secondsWaiting);
 
         for (ServerPlayer player : serverLevel.getServer().getPlayerList().getPlayers()) {
-            if (!AuthUtils.isAuthorized(player) && !player.getUUID().equals(train.owner)) continue;
+            if (!AuthUtils.isDebugAuthorized(player) && !player.getUUID().equals(train.owner)) continue;
             player.sendSystemMessage(message);
         }
 

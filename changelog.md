@@ -5,7 +5,7 @@ Additions
 - Navigation watchdog: alerts when a train is stopped at a signal for 5 minutes
 
 Changes
-- None
+- Support fabric permissions API
 
 Bug Fixes
 - None

@@ -40,7 +40,7 @@ import static net.minecraft.commands.Commands.literal;
 public class WatchdogCommand {
     public static ArgumentBuilder<CommandSourceStack, ?> register() {
         return literal("watchdog")
-            .requires(AuthUtils::isAuthorized)
+            .requires(AuthUtils::isDebugAuthorized)
             .then(literal("disable")
                 .then(argument("uuid", UuidArgument.uuid())
                     .executes(ctx -> setDisabled(
