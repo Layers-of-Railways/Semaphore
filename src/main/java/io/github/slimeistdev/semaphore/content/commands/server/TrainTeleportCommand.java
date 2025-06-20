@@ -160,7 +160,7 @@ public class TrainTeleportCommand {
             source.sendSuccess(
                 () -> Component.translatable(
                     "semaphore.command.train_tp.back.success.single",
-                    successPlayer$
+                    successPlayer$.getDisplayName()
                 ),
                 true
             );
