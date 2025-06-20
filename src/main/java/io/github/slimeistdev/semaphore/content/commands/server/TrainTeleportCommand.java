@@ -25,6 +25,7 @@ import com.simibubi.create.Create;
 import com.simibubi.create.content.trains.entity.Carriage;
 import com.simibubi.create.content.trains.entity.Train;
 import com.simibubi.create.foundation.utility.Components;
+import io.github.slimeistdev.semaphore.mixin_ducks.common.ServerPlayerDuck;
 import io.github.slimeistdev.semaphore.utils.AuthUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -36,6 +37,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -43,10 +45,7 @@ import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
@@ -60,22 +59,34 @@ public class TrainTeleportCommand {
             .then(argument("uuid", UuidArgument.uuid())
                 .executes(ctx -> teleportToTrain(
                     ctx.getSource(),
-                    Collections.singleton(ctx.getSource().getEntityOrException()),
+                    Collections.singleton(ctx.getSource().getPlayerOrException()),
                     UuidArgument.getUuid(ctx, "uuid")
                 ))
             )
-            .then(argument("targets", EntityArgument.entities())
+            .then(literal("back")
+                .executes(ctx -> teleportBack(
+                    ctx.getSource(),
+                    Collections.singleton(ctx.getSource().getPlayerOrException())
+                ))
+            )
+            .then(argument("targets", EntityArgument.players())
                 .then(argument("uuid", UuidArgument.uuid())
                     .executes(ctx -> teleportToTrain(
                         ctx.getSource(),
-                        EntityArgument.getEntities(ctx, "targets"),
+                        EntityArgument.getPlayers(ctx, "targets"),
                         UuidArgument.getUuid(ctx, "uuid")
+                    ))
+                )
+                .then(literal("back")
+                    .executes(ctx -> teleportBack(
+                        ctx.getSource(),
+                        EntityArgument.getPlayers(ctx, "targets")
                     ))
                 )
             );
     }
 
-    private static int teleportToTrain(CommandSourceStack source, Collection<? extends Entity> targets, UUID trainId) throws CommandSyntaxException {
+    private static int teleportToTrain(CommandSourceStack source, Collection<? extends ServerPlayer> targets, UUID trainId) throws CommandSyntaxException {
         Train train = Create.RAILWAYS.trains.get(trainId);
         if (train == null || train.carriages.isEmpty()) {
             source.sendFailure(Component.translatable("semaphore.command.train_not_found", trainId));
@@ -97,8 +108,10 @@ public class TrainTeleportCommand {
 
         ServerLevel targetLevel = source.getServer().getLevel(dimension);
 
-        for (Entity entity : targets) {
-            performTeleport(entity, targetLevel, pos.x, pos.y + 7, pos.z);
+        for (ServerPlayer player : targets) {
+            ((ServerPlayerDuck) player).semaphore$getTrainTeleportStack().push(player.position());
+
+            performTeleport(player, targetLevel, pos.x, pos.y + 7, pos.z);
         }
 
         if (targets.size() == 1) {
@@ -122,6 +135,47 @@ public class TrainTeleportCommand {
         }
 
         return targets.size();
+    }
+
+    private static int teleportBack(CommandSourceStack source, Collection<? extends ServerPlayer> targets) throws CommandSyntaxException {
+        int successCount = 0;
+        ServerPlayer successPlayer = null;
+
+        for (ServerPlayer player : targets) {
+            Stack<Vec3> teleportStack = ((ServerPlayerDuck) player).semaphore$getTrainTeleportStack();
+
+            if (teleportStack.isEmpty()) {
+                source.sendFailure(Component.translatable("semaphore.command.train_tp.back.empty_stack", player.getDisplayName()));
+                continue;
+            }
+
+            Vec3 lastPosition = teleportStack.pop();
+            performTeleport(player, source.getLevel(), lastPosition.x, lastPosition.y, lastPosition.z);
+            successCount++;
+            successPlayer = player;
+        }
+
+        if (successCount == 1) {
+            final ServerPlayer successPlayer$ = successPlayer;
+            source.sendSuccess(
+                () -> Component.translatable(
+                    "semaphore.command.train_tp.back.success.single",
+                    successPlayer$
+                ),
+                true
+            );
+        } else if (successCount > 1) {
+            final int successCount$ = successCount;
+            source.sendSuccess(
+                () -> Component.translatable(
+                    "semaphore.command.train_tp.back.success.multiple",
+                    successCount$
+                ),
+                true
+            );
+        }
+
+        return successCount;
     }
 
     private static void performTeleport(

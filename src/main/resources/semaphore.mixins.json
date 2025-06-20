@@ -5,6 +5,7 @@
   "mixins": [
     "common.AccessorNavigation",
     "common.MixinNavigation",
+    "common.MixinServerPlayer",
     "common.MixinTrain"
   ],
   "injectors": {

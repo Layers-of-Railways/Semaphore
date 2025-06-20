@@ -18,12 +18,15 @@
   "semaphore.command.train_not_found": "Could not find train with id %s",
   "semaphore.command.train_tp.lost": "Could not determine coordinates for train %s",
   "semaphore.command.train_tp.success.single": "Teleported %s to %s",
-  "semaphore.command.train_tp.success.multiple": "Teleported %s entities to %s",
+  "semaphore.command.train_tp.success.multiple": "Teleported %s players to %s",
 
   "semaphore.command.watchdog.enabled": "Enabled navigation watchdog for train [%s]",
   "semaphore.command.watchdog.disabled": "Disabled navigation watchdog for train [%s]",
 
   "semaphore.navigation_watchdog.stuck": "\u00a7c[NAVIGATION WATCHDOG]\u00a7r Train [%s] has been stuck at a signal for %s minutes and %s seconds.",
   "semaphore.tooltip.train_tp": "Click to teleport",
-  "semaphore.tooltip.copyable_string": "Click to copy"
+  "semaphore.tooltip.copyable_string": "Click to copy",
+  "semaphore.command.train_tp.back.empty_stack": "%s has no stored previous locations",
+  "semaphore.command.train_tp.back.success.single": "Teleported %s back",
+  "semaphore.command.train_tp.back.success.multiple": "Teleported %s players back"
 }
