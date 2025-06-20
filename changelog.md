@@ -3,6 +3,7 @@ Version 0.1.2
 ------------------------------------------------------
 Additions
 - Support teleporting back after `/semaphore train_tp`
+- Command to recalculate signal occupancy: `/semaphore recalculate_signals`
 
 Changes
 - None

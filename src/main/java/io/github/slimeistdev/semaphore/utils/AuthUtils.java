@@ -22,10 +22,10 @@ import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.world.entity.player.Player;
 
-@SuppressWarnings("unused")
 public class AuthUtils {
     public static final String DEBUG_PERMISSION = "semaphore.debug";
     public static final String TELEPORT_PERMISSION = "semaphore.teleport";
+    public static final String RECALCULATE_SIGNALS_PERMISSION = "semaphore.recalculate_signals";
 
     public static boolean isDebugAuthorized(Player player) {
         return Permissions.check(player, DEBUG_PERMISSION, 2);
@@ -35,11 +35,11 @@ public class AuthUtils {
         return Permissions.check(commandSourceStack, DEBUG_PERMISSION, 2);
     }
 
-    public static boolean isTeleportAuthorized(Player player) {
-        return Permissions.check(player, TELEPORT_PERMISSION, 2);
-    }
-
     public static boolean isTeleportAuthorized(CommandSourceStack commandSourceStack) {
         return Permissions.check(commandSourceStack, TELEPORT_PERMISSION, 2);
+    }
+
+    public static boolean isRecalculateSignalsAuthorized(CommandSourceStack commandSourceStack) {
+        return Permissions.check(commandSourceStack, RECALCULATE_SIGNALS_PERMISSION, 2);
     }
 }
