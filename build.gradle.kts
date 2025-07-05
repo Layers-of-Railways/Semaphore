@@ -47,7 +47,7 @@ repositories {
     maven("https://mvn.devos.one/snapshots/") // Create Fabric, Porting Lib, Forge Tags, Milk Lib, Registrate Fabric
     maven("https://mvn.devos.one/releases") // Porting Lib Releases
     maven("https://maven.jamieswhiteshirt.com/libs-release") // Reach Entity Attributes
-    exclusiveMaven("https://maven.tterrag.com/", "com.jozufozu.flywheel") // Flywheel
+    exclusiveMaven("https://modmaven.dev/", "com.jozufozu.flywheel") // Flywheel
     maven("https://raw.githubusercontent.com/Fuzss/modresources/main/maven/") // Forge config api port
     maven("https://maven.ithundxr.dev/snapshots")
 }
