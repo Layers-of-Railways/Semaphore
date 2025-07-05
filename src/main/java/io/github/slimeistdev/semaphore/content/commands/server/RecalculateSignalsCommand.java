@@ -21,6 +21,7 @@ package io.github.slimeistdev.semaphore.content.commands.server;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.trains.entity.Train;
+import io.github.slimeistdev.semaphore.mixin_ducks.common.TrainDuck;
 import io.github.slimeistdev.semaphore.utils.AuthUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
@@ -38,8 +39,10 @@ public class RecalculateSignalsCommand {
         int count = 0;
 
         for (Train train : Create.RAILWAYS.trains.values()) {
+            if (train.updateSignalBlocks) continue;
             count++;
             train.updateSignalBlocks = true;
+            ((TrainDuck) train).semaphore$reduceSignalsOnly(c -> source.sendSuccess(() -> c, true));
         }
 
         if (count == 0) {

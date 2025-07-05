@@ -18,7 +18,15 @@
 
 package io.github.slimeistdev.semaphore.mixin_ducks.common;
 
+import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Consumer;
+
 public interface TrainDuck {
     boolean semaphore$isNavigationWatchdogDisabled();
     void semaphore$setNavigationWatchdogDisabled(boolean disabled);
+
+    /** Force trains not to add new occupancy during `collectInitiallyOccupiedSignalBlocks` */
+    void semaphore$reduceSignalsOnly(@Nullable Consumer<Component> feedback);
 }

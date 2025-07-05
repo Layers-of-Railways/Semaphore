@@ -30,5 +30,6 @@
   "semaphore.command.train_tp.back.success.single": "Teleported %s back",
   "semaphore.command.train_tp.back.success.multiple": "Teleported %s players back",
   "semaphore.command.recalculate_signals.no_trains": "No trains found",
-  "semaphore.command.recalculate_signals.success": "Recalculated signal occupancy for %s trains"
+  "semaphore.command.recalculate_signals.success": "Recalculated signal occupancy for %s trains",
+  "semaphore.command.recalculate_signals.success.train": "Removed %2$s wrongly occupied signal sections from [%1$s]: %3$s"
 }

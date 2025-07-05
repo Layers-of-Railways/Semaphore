@@ -18,20 +18,21 @@
 
 package io.github.slimeistdev.semaphore.mixin.common;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.simibubi.create.content.trains.entity.Carriage;
 import com.simibubi.create.content.trains.entity.Train;
-import com.simibubi.create.content.trains.entity.TravellingPoint;
 import com.simibubi.create.content.trains.graph.DimensionPalette;
-import com.simibubi.create.content.trains.graph.TrackEdge;
 import com.simibubi.create.content.trains.graph.TrackGraph;
-import com.simibubi.create.content.trains.graph.TrackNode;
-import com.simibubi.create.content.trains.signal.SignalBoundary;
-import com.simibubi.create.content.trains.signal.TrackEdgePoint;
-import com.simibubi.create.foundation.utility.Couple;
-import com.simibubi.create.foundation.utility.Pair;
+import io.github.slimeistdev.semaphore.Semaphore;
 import io.github.slimeistdev.semaphore.mixin_ducks.common.TrainDuck;
+import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
-import org.apache.commons.lang3.mutable.MutableObject;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.Style;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -39,15 +40,26 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Consumer;
 
 @Mixin(Train.class)
 public class MixinTrain implements TrainDuck {
     @Shadow public List<Carriage> carriages;
+
     @Unique
     private boolean semaphore$navigationWatchdogDisabled = false;
+
+    @Unique
+    private boolean semaphore$reduceSignalsOnly = false;
+
+    @Unique
+    @Nullable
+    private Set<UUID> semaphore$oldOccupiedSignalBlocks = null;
+
+    @Unique
+    @Nullable
+    private Consumer<Component> semaphore$feedback = null;
 
     @Override
     public boolean semaphore$isNavigationWatchdogDisabled() {
@@ -57,6 +69,12 @@ public class MixinTrain implements TrainDuck {
     @Override
     public void semaphore$setNavigationWatchdogDisabled(boolean disabled) {
         semaphore$navigationWatchdogDisabled = disabled;
+    }
+
+    @Override
+    public void semaphore$reduceSignalsOnly(@Nullable Consumer<Component> feedback) {
+        semaphore$reduceSignalsOnly = true;
+        semaphore$feedback = feedback;
     }
 
     @Inject(method = "write", at = @At("RETURN"))
@@ -76,33 +94,62 @@ public class MixinTrain implements TrainDuck {
         }
     }
 
-    // guard against deadlocks being caused by `/semaphore recalculate_signals`
-    @Inject(method = "lambda$collectInitiallyOccupiedSignalBlocks$20", at = @At("HEAD"), cancellable = true, remap = false)
-    private void skipLeadingSignal(
-        MutableObject<UUID> prevGroup,
-        Double distance,
-        Pair<TrackEdgePoint, Couple<TrackNode>> couple,
-        CallbackInfoReturnable<Boolean> cir
-    ) {
-        if (!(couple.getFirst() instanceof SignalBoundary signal)) return;
-
-        TravellingPoint leadingPoint = carriages.get(0).getLeadingPoint();
-        TrackNode node1 = leadingPoint.node1;
-        TrackNode node2 = leadingPoint.node2;
-        TrackEdge edge = leadingPoint.edge;
-
-        if (edge == null) return;
-
-        double position = leadingPoint.position;
-
-        if (!(Couple.create(node1, node2).equals(couple.getSecond()))) {
-            return;
+    @WrapOperation(method = "earlyTick", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/trains/entity/Train;collectInitiallyOccupiedSignalBlocks()V"))
+    private void reduceOnly(Train instance, Operation<Void> original) {
+        if (semaphore$reduceSignalsOnly) {
+            semaphore$oldOccupiedSignalBlocks = new HashSet<>(instance.occupiedSignalBlocks.keySet());
         }
 
-        double signalPosition = signal.getLocationOn(edge);
+        original.call(instance);
 
-        if (signalPosition + 0.0005 > position) {
-            cir.setReturnValue(false);
+        if (semaphore$reduceSignalsOnly) {
+            if (semaphore$oldOccupiedSignalBlocks != null) { // sanity check
+                // prevent occupation of new signal blocks
+                instance.occupiedSignalBlocks.keySet().retainAll(semaphore$oldOccupiedSignalBlocks);
+
+                // convert oldOccupiedSignalBlocks to a set of signal blocks that were removed by the recalculation
+                semaphore$oldOccupiedSignalBlocks.removeAll(instance.occupiedSignalBlocks.keySet());
+
+                if (!semaphore$oldOccupiedSignalBlocks.isEmpty()) {
+                    String tpCommand = String.format("/semaphore train_tp @s %s", instance.id);
+
+                    var trainLabel = instance.name.copy().withStyle(Style.EMPTY
+                        .withClickEvent(new ClickEvent(
+                            ClickEvent.Action.SUGGEST_COMMAND,
+                            tpCommand
+                        ))
+                        .withHoverEvent(new HoverEvent(
+                            HoverEvent.Action.SHOW_TEXT,
+                            Component.translatable("semaphore.tooltip.train_tp")
+                        ))
+                        .withColor(ChatFormatting.GOLD)
+                    );
+
+                    String removedStr = semaphore$oldOccupiedSignalBlocks.stream()
+                        .map(UUID::toString)
+                        .toList().toString();
+
+                    if (semaphore$feedback != null) {
+                        semaphore$feedback.accept(Component.translatable(
+                            "semaphore.command.recalculate_signals.success.train",
+                            trainLabel,
+                            semaphore$oldOccupiedSignalBlocks.size(),
+                            removedStr
+                        ).withStyle(ChatFormatting.GREEN));
+                    }
+
+                    Semaphore.LOGGER.warn("Removed {} wrongly occupied signal sections from train '{}' ({}): {}",
+                        semaphore$oldOccupiedSignalBlocks.size(),
+                        instance.name.getString(),
+                        instance.id,
+                        removedStr
+                    );
+                }
+            }
         }
+
+        semaphore$reduceSignalsOnly = false;
+        semaphore$oldOccupiedSignalBlocks = null;
+        semaphore$feedback = null;
     }
 }
